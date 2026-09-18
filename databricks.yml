@@ -1,0 +1,31 @@
+bundle:
+  name: high-garden-coffee
+
+include:
+  - resources/*.yml
+
+variables:
+  workspace_host:
+    description: Azure Databricks workspace URL
+  cluster_id:
+    description: Existing Databricks cluster ID used by the technical-test deployment
+  catalog:
+    description: Unity Catalog catalog
+    default: high_garden
+
+targets:
+  dev:
+    mode: development
+    default: true
+    workspace:
+      host: ${var.workspace_host}
+    variables:
+      catalog: high_garden_dev
+
+  prod:
+    mode: production
+    workspace:
+      host: ${var.workspace_host}
+      root_path: /Workspace/Production/.bundle/${bundle.name}/${bundle.target}
+    variables:
+      catalog: high_garden
