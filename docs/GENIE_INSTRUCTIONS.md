@@ -1,15 +1,15 @@
 # High Garden Coffee — Genie Agent Instructions
 
-Create a Databricks Genie Agent for conversational analytics over governed Gold tables.
+Create a Databricks Genie space for conversational analytics over governed production Gold tables.
 
 ## Tables to add
 
-- `high_garden.gold.market_opportunities`
-- `high_garden.gold.model_metrics`
-- `high_garden.gold.market_anomalies`
-- `high_garden.gold.market_clusters`
-- `high_garden.gold.growth_predictions`
-- `high_garden.gold.market_metrics`
+- `high_garden_prod.gold.market_opportunities`
+- `high_garden_prod.gold.model_metrics`
+- `high_garden_prod.gold.market_anomalies`
+- `high_garden_prod.gold.market_clusters`
+- `high_garden_prod.gold.growth_predictions`
+- `high_garden_prod.gold.market_metrics`
 
 ## Agent instructions
 
