@@ -1,0 +1,62 @@
+name: Parametrize Databricks notebooks
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - scripts/parametrize_notebooks.py
+      - .github/workflows/parametrize-notebooks.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  parametrize:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Parameterize production notebooks
+        run: python scripts/parametrize_notebooks.py
+
+      - name: Verify no hard-coded dev catalog remains in production notebooks
+        run: |
+          if grep -R --line-number 'high_garden\.' \
+            notebooks/02_bronze_ingestion.ipynb \
+            notebooks/03_silver.ipynb \
+            notebooks/05_gold.ipynb \
+            notebooks/06_gold_ml_features.ipynb \
+            notebooks/07_model_experiments.ipynb \
+            notebooks/08_model_registration.ipynb \
+            notebooks/09_batch_forecasting.ipynb \
+            notebooks/10_market_segmentation.ipynb \
+            notebooks/11_growth_classifier.ipynb \
+            notebooks/12_anomaly_detection.ipynb \
+            notebooks/13_market_opportunity.ipynb; then
+            echo 'Hard-coded high_garden references remain.'
+            exit 1
+          fi
+
+      - name: Commit transformed notebooks
+        run: |
+          if git diff --quiet -- notebooks; then
+            echo 'No notebook changes required.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add notebooks
+          git commit -m 'Parameterize notebooks for dev and prod catalogs'
+          git push
