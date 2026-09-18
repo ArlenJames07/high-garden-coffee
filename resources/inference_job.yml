@@ -12,24 +12,32 @@ resources:
         - task_key: batch_forecast
           notebook_task:
             notebook_path: ../notebooks/09_batch_forecasting.ipynb
+            base_parameters:
+              catalog: ${var.catalog}
 
         - task_key: growth_scoring
           depends_on:
             - task_key: batch_forecast
           notebook_task:
             notebook_path: ../notebooks/11_growth_classifier.ipynb
+            base_parameters:
+              catalog: ${var.catalog}
 
         - task_key: segmentation_scoring
           depends_on:
             - task_key: batch_forecast
           notebook_task:
             notebook_path: ../notebooks/10_market_segmentation.ipynb
+            base_parameters:
+              catalog: ${var.catalog}
 
         - task_key: anomaly_scoring
           depends_on:
             - task_key: batch_forecast
           notebook_task:
             notebook_path: ../notebooks/12_anomaly_detection.ipynb
+            base_parameters:
+              catalog: ${var.catalog}
 
         - task_key: market_opportunity
           depends_on:
@@ -38,3 +46,5 @@ resources:
             - task_key: anomaly_scoring
           notebook_task:
             notebook_path: ../notebooks/13_market_opportunity.ipynb
+            base_parameters:
+              catalog: ${var.catalog}
