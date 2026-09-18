@@ -1,0 +1,1163 @@
+{
+  "datasets": [
+    {
+      "name": "3fcb5a51",
+      "displayName": "Datos-Kpis",
+      "queryLines": [
+        "SELECT\n",
+        "  COUNT(*) AS markets_analyzed,\n",
+        "  SUM(CASE WHEN opportunity_tier = 'High' THEN 1 ELSE 0 END)\n",
+        "    AS high_opportunity_markets,\n",
+        "  ROUND(AVG(growth_probability) * 100, 1)\n",
+        "    AS avg_growth_probability_pct,\n",
+        "  ROUND(AVG(opportunity_score), 1)\n",
+        "    AS avg_opportunity_score\n",
+        "FROM high_garden_prod.gold.market_opportunities;"
+      ]
+    },
+    {
+      "name": "dce032ca",
+      "displayName": "Datos-TopMarkets",
+      "queryLines": [
+        "SELECT\n",
+        "  opportunity_rank,\n",
+        "  country,\n",
+        "  coffee_type,\n",
+        "  opportunity_score,\n",
+        "  opportunity_tier,\n",
+        "  growth_probability,\n",
+        "  forecast_consumption,\n",
+        "  segment\n",
+        "FROM high_garden_prod.gold.market_opportunities\n",
+        "ORDER BY opportunity_rank\n",
+        "LIMIT 15;"
+      ]
+    },
+    {
+      "name": "de5afaad",
+      "displayName": "Datos-Demand vs growth",
+      "queryLines": [
+        "SELECT\n",
+        "  country,\n",
+        "  forecast_consumption,\n",
+        "  growth_probability,\n",
+        "  opportunity_score,\n",
+        "  segment\n",
+        "FROM high_garden_prod.gold.market_opportunities;"
+      ]
+    },
+    {
+      "name": "78555076",
+      "displayName": "Datos-Model-performance",
+      "queryLines": [
+        "SELECT\n",
+        "  model,\n",
+        "  ROUND(wape * 100, 2) AS wape_pct,\n",
+        "  ROUND(mase, 3) AS mase,\n",
+        "  ROUND(mae, 0) AS mae,\n",
+        "  ROUND(rmse, 0) AS rmse\n",
+        "FROM high_garden_prod.gold.model_metrics\n",
+        "ORDER BY wape ASC;"
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "name": "17913153",
+      "displayName": "Executive Overview",
+      "layout": [
+        {
+          "widget": {
+            "name": "b3d799dd",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "78555076",
+                  "fields": [
+                    {
+                      "name": "model",
+                      "expression": "`model`"
+                    },
+                    {
+                      "name": "wape_pct",
+                      "expression": "`wape_pct`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Model Performance — WAPE %"
+              },
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "model",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "wape_pct",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 5,
+            "y": 7,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "overview_header",
+            "multilineTextboxSpec": {
+              "lines": [
+                "## Executive Overview\n",
+                "Market sizing, opportunity ranking, and model quality at a glance."
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 12,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "markets_analyzed_counter",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "3fcb5a51",
+                  "fields": [
+                    {
+                      "name": "max(markets_analyzed)",
+                      "expression": "MAX(`markets_analyzed`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Markets Analyzed"
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "max(markets_analyzed)",
+                  "rowNumber": 0
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 2,
+            "width": 3,
+            "height": 5
+          }
+        },
+        {
+          "widget": {
+            "name": "high_opportunity_counter",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "3fcb5a51",
+                  "fields": [
+                    {
+                      "name": "max(high_opportunity_markets)",
+                      "expression": "MAX(`high_opportunity_markets`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "High Opportunity Markets"
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "max(high_opportunity_markets)",
+                  "rowNumber": 0
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 2,
+            "width": 3,
+            "height": 5
+          }
+        },
+        {
+          "widget": {
+            "name": "growth_probability_counter",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "3fcb5a51",
+                  "fields": [
+                    {
+                      "name": "max(avg_growth_probability_pct)",
+                      "expression": "MAX(`avg_growth_probability_pct`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Avg Growth Probability %"
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "max(avg_growth_probability_pct)",
+                  "rowNumber": 0
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 2,
+            "width": 3,
+            "height": 5
+          }
+        },
+        {
+          "widget": {
+            "name": "opportunity_score_counter",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "3fcb5a51",
+                  "fields": [
+                    {
+                      "name": "max(avg_opportunity_score)",
+                      "expression": "MAX(`avg_opportunity_score`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Avg Opportunity Score"
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "max(avg_opportunity_score)",
+                  "rowNumber": 0
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 9,
+            "y": 2,
+            "width": 3,
+            "height": 5
+          }
+        },
+        {
+          "widget": {
+            "name": "top_markets_bar",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "dce032ca",
+                  "fields": [
+                    {
+                      "name": "opportunity_tier",
+                      "expression": "`opportunity_tier`"
+                    },
+                    {
+                      "name": "country",
+                      "expression": "`country`"
+                    },
+                    {
+                      "name": "sum(opportunity_score)",
+                      "expression": "SUM(`opportunity_score`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Top Markets by Opportunity Score"
+              },
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "country",
+                  "displayName": "country",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(opportunity_score)",
+                  "displayName": "opportunity_score",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "opportunity_tier",
+                  "displayName": "opportunity_tier",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 7,
+            "width": 5,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "top_markets_table",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "dce032ca",
+                  "fields": [
+                    {
+                      "name": "opportunity_rank",
+                      "expression": "`opportunity_rank`"
+                    },
+                    {
+                      "name": "country",
+                      "expression": "`country`"
+                    },
+                    {
+                      "name": "coffee_type",
+                      "expression": "`coffee_type`"
+                    },
+                    {
+                      "name": "opportunity_tier",
+                      "expression": "`opportunity_tier`"
+                    },
+                    {
+                      "name": "opportunity_score",
+                      "expression": "`opportunity_score`"
+                    },
+                    {
+                      "name": "growth_probability",
+                      "expression": "`growth_probability`"
+                    },
+                    {
+                      "name": "forecast_consumption",
+                      "expression": "`forecast_consumption`"
+                    },
+                    {
+                      "name": "segment",
+                      "expression": "`segment`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Top Market Details"
+              },
+              "version": 2,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "opportunity_rank"
+                  },
+                  {
+                    "fieldName": "country"
+                  },
+                  {
+                    "fieldName": "coffee_type"
+                  },
+                  {
+                    "fieldName": "opportunity_tier"
+                  },
+                  {
+                    "fieldName": "opportunity_score"
+                  },
+                  {
+                    "fieldName": "growth_probability"
+                  },
+                  {
+                    "fieldName": "forecast_consumption"
+                  },
+                  {
+                    "fieldName": "segment"
+                  }
+                ]
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 13,
+            "width": 12,
+            "height": 7
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    },
+    {
+      "name": "demand_opportunity",
+      "displayName": "Demand & Opportunity",
+      "layout": [
+        {
+          "widget": {
+            "name": "demand_header",
+            "multilineTextboxSpec": {
+              "lines": [
+                "## Demand & Opportunity\n",
+                "Compare forecast demand, growth probability, and segment mix across markets."
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 12,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "forecast_consumption_bar",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "de5afaad",
+                  "fields": [
+                    {
+                      "name": "segment",
+                      "expression": "`segment`"
+                    },
+                    {
+                      "name": "country",
+                      "expression": "`country`"
+                    },
+                    {
+                      "name": "sum(forecast_consumption)",
+                      "expression": "SUM(`forecast_consumption`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Forecast Consumption by Country"
+              },
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "country",
+                  "displayName": "country",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(forecast_consumption)",
+                  "displayName": "forecast_consumption",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "segment",
+                  "displayName": "segment",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 2,
+            "width": 6,
+            "height": 8
+          }
+        },
+        {
+          "widget": {
+            "name": "growth_probability_bar",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "de5afaad",
+                  "fields": [
+                    {
+                      "name": "segment",
+                      "expression": "`segment`"
+                    },
+                    {
+                      "name": "country",
+                      "expression": "`country`"
+                    },
+                    {
+                      "name": "sum(growth_probability)",
+                      "expression": "SUM(`growth_probability`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Growth Probability by Country"
+              },
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "country",
+                  "displayName": "country",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(growth_probability)",
+                  "displayName": "growth_probability",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "segment",
+                  "displayName": "segment",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 2,
+            "width": 6,
+            "height": 8
+          }
+        },
+        {
+          "widget": {
+            "name": "demand_detail_table",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "de5afaad",
+                  "fields": [
+                    {
+                      "name": "country",
+                      "expression": "`country`"
+                    },
+                    {
+                      "name": "segment",
+                      "expression": "`segment`"
+                    },
+                    {
+                      "name": "forecast_consumption",
+                      "expression": "`forecast_consumption`"
+                    },
+                    {
+                      "name": "growth_probability",
+                      "expression": "`growth_probability`"
+                    },
+                    {
+                      "name": "opportunity_score",
+                      "expression": "`opportunity_score`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Market Demand Details"
+              },
+              "version": 2,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "country"
+                  },
+                  {
+                    "fieldName": "segment"
+                  },
+                  {
+                    "fieldName": "forecast_consumption"
+                  },
+                  {
+                    "fieldName": "growth_probability"
+                  },
+                  {
+                    "fieldName": "opportunity_score"
+                  }
+                ]
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 10,
+            "width": 12,
+            "height": 8
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    },
+    {
+      "name": "model_performance",
+      "displayName": "Model Performance",
+      "layout": [
+        {
+          "widget": {
+            "name": "model_header",
+            "multilineTextboxSpec": {
+              "lines": [
+                "## Model Performance\n",
+                "Benchmark the forecasting models across error metrics."
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 12,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "best_wape_counter",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "78555076",
+                  "fields": [
+                    {
+                      "name": "min(wape_pct)",
+                      "expression": "MIN(`wape_pct`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Best WAPE %"
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "min(wape_pct)",
+                  "rowNumber": 0
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 2,
+            "width": 4,
+            "height": 5
+          }
+        },
+        {
+          "widget": {
+            "name": "best_mae_counter",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "78555076",
+                  "fields": [
+                    {
+                      "name": "min(mae)",
+                      "expression": "MIN(`mae`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Best MAE"
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "min(mae)",
+                  "rowNumber": 0
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 4,
+            "y": 2,
+            "width": 4,
+            "height": 5
+          }
+        },
+        {
+          "widget": {
+            "name": "best_rmse_counter",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "78555076",
+                  "fields": [
+                    {
+                      "name": "min(rmse)",
+                      "expression": "MIN(`rmse`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Best RMSE"
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "min(rmse)",
+                  "rowNumber": 0
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 8,
+            "y": 2,
+            "width": 4,
+            "height": 5
+          }
+        },
+        {
+          "widget": {
+            "name": "model_metrics_table",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "78555076",
+                  "fields": [
+                    {
+                      "name": "model",
+                      "expression": "`model`"
+                    },
+                    {
+                      "name": "wape_pct",
+                      "expression": "`wape_pct`"
+                    },
+                    {
+                      "name": "mase",
+                      "expression": "`mase`"
+                    },
+                    {
+                      "name": "mae",
+                      "expression": "`mae`"
+                    },
+                    {
+                      "name": "rmse",
+                      "expression": "`rmse`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Model Metrics Table"
+              },
+              "version": 2,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "model"
+                  },
+                  {
+                    "fieldName": "wape_pct"
+                  },
+                  {
+                    "fieldName": "mase"
+                  },
+                  {
+                    "fieldName": "mae"
+                  },
+                  {
+                    "fieldName": "rmse"
+                  }
+                ]
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 7,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "mae_by_model_bar",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "78555076",
+                  "fields": [
+                    {
+                      "name": "model",
+                      "expression": "`model`"
+                    },
+                    {
+                      "name": "sum(mae)",
+                      "expression": "SUM(`mae`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "MAE by Model"
+              },
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "model",
+                  "displayName": "model",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(mae)",
+                  "displayName": "mae",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "model",
+                  "displayName": "model",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 7,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "rmse_by_model_bar",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "78555076",
+                  "fields": [
+                    {
+                      "name": "model",
+                      "expression": "`model`"
+                    },
+                    {
+                      "name": "sum(rmse)",
+                      "expression": "SUM(`rmse`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "RMSE by Model"
+              },
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "model",
+                  "displayName": "model",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(rmse)",
+                  "displayName": "rmse",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "model",
+                  "displayName": "model",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 13,
+            "width": 6,
+            "height": 6
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "canvasBackgroundColor": {
+        "light": "#EBEBEB",
+        "dark": "#08141A"
+      },
+      "widgetBackgroundColor": {
+        "light": "#FCFCFD",
+        "dark": "#10212B"
+      },
+      "widgetBorderColor": {
+        "light": "#FCFCFD",
+        "dark": "#10212B"
+      },
+      "fontColor": {
+        "light": "#08141A",
+        "dark": "#EBEBEB"
+      },
+      "selectionColor": {
+        "light": "#2272B4",
+        "dark": "#15AFDD"
+      },
+      "visualizationColors": [
+        "#15AFDD",
+        "#2375A8",
+        "#52A870",
+        "#C85070",
+        "#C89930"
+      ],
+      "widgetHeaderAlignment": "LEFT",
+      "fontFamily": "Inter",
+      "widgetPadding": 12,
+      "widgetMargin": 8,
+      "widgetCornerRadius": 12,
+      "widgetShadow": 10,
+      "fontSettings": {
+        "base": {
+          "fontFamily": "Inter",
+          "fontColor": {
+            "light": "#08141A",
+            "dark": "#EBEBEB"
+          },
+          "fontSize": 12
+        },
+        "widgetTitle": {
+          "fontFamily": "Inter",
+          "fontColor": {
+            "light": "#08141A",
+            "dark": "#EBEBEB"
+          },
+          "fontSize": 16,
+          "fontWeight": 600
+        },
+        "widgetDescription": {
+          "fontFamily": "Inter",
+          "fontColor": {
+            "light": "#4A5963",
+            "dark": "#B8C4CC"
+          },
+          "fontSize": 12
+        },
+        "fieldTitle": {
+          "fontFamily": "Inter",
+          "fontColor": {
+            "light": "#4A5963",
+            "dark": "#B8C4CC"
+          },
+          "fontSize": 12,
+          "fontWeight": 500
+        },
+        "fieldValue": {
+          "fontFamily": "Inter",
+          "fontColor": {
+            "light": "#08141A",
+            "dark": "#EBEBEB"
+          },
+          "fontSize": 12,
+          "fontWeight": 500
+        }
+      },
+      "visualizationColorMappings": [
+        {
+          "value": "High",
+          "color": "#52A870"
+        },
+        {
+          "value": "Medium",
+          "color": "#C89930"
+        },
+        {
+          "value": "Established_Moderate_Growth",
+          "color": "#2375A8"
+        }
+      ]
+    },
+    "applyModeEnabled": false
+  }
+}
