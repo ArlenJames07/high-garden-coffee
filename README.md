@@ -52,6 +52,7 @@ Dashboard / GenAI consumption layer
 - Experiment tracking: MLflow
 - Model lifecycle: Unity Catalog registered models and Champion alias
 - Orchestration: Lakeflow Jobs defined as Declarative Automation Bundle resources
+- Compute: Databricks serverless jobs for notebook tasks
 - Dependency management: `uv` / `pyproject.toml` (generate and commit `uv.lock` after resolving dependencies)
 - CI: GitHub Actions + Ruff + Pytest
 - CD: GitHub Actions + Databricks Declarative Automation Bundles
@@ -83,12 +84,11 @@ uv run pytest -v
 
 ## Databricks bundle
 
-Set the bundle variables for your workspace and cluster, then:
+From Databricks Git Folders, use the Deployments panel on `databricks.yml` and deploy the `dev` target. The job resources intentionally omit `existing_cluster_id`, allowing compatible notebook tasks to use Databricks serverless compute.
+
+From a configured Databricks CLI environment:
 
 ```bash
-export BUNDLE_VAR_workspace_host="https://<workspace>.azuredatabricks.net"
-export BUNDLE_VAR_cluster_id="<cluster-id>"
-
 databricks bundle validate -t dev
 databricks bundle deploy -t dev
 ```
