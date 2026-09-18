@@ -5,28 +5,24 @@ resources:
       max_concurrent_runs: 1
       tasks:
         - task_key: batch_forecast
-          existing_cluster_id: ${var.cluster_id}
           notebook_task:
             notebook_path: ../notebooks/09_batch_forecasting.ipynb
 
         - task_key: growth_scoring
           depends_on:
             - task_key: batch_forecast
-          existing_cluster_id: ${var.cluster_id}
           notebook_task:
             notebook_path: ../notebooks/11_growth_classifier.ipynb
 
         - task_key: segmentation_scoring
           depends_on:
             - task_key: batch_forecast
-          existing_cluster_id: ${var.cluster_id}
           notebook_task:
             notebook_path: ../notebooks/10_market_segmentation.ipynb
 
         - task_key: anomaly_scoring
           depends_on:
             - task_key: batch_forecast
-          existing_cluster_id: ${var.cluster_id}
           notebook_task:
             notebook_path: ../notebooks/12_anomaly_detection.ipynb
 
@@ -35,6 +31,5 @@ resources:
             - task_key: growth_scoring
             - task_key: segmentation_scoring
             - task_key: anomaly_scoring
-          existing_cluster_id: ${var.cluster_id}
           notebook_task:
             notebook_path: ../notebooks/13_market_opportunity.ipynb
