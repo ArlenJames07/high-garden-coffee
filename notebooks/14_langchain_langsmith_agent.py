@@ -1,5 +1,5 @@
 # Databricks notebook source
-# MAGIC %pip install -q -U langchain databricks-langchain langsmith
+# MAGIC %pip install -q langchain databricks-langchain langsmith langchain-openai
 
 # COMMAND ----------
 dbutils.library.restartPython()
@@ -10,24 +10,26 @@ import os
 import re
 from typing import Optional
 
-from databricks_langchain import ChatDatabricks
+from databricks.sdk import WorkspaceClient
 from langchain.agents import create_agent
 from langchain_core.tools import tool
+from langchain_openai import ChatOpenAI
 from langsmith import traceable
 from pyspark.sql import functions as F
 
 # COMMAND ----------
-# Runtime configuration
-# Choose an LLM endpoint that exists in your Databricks workspace.
+# Runtime configuration.
+# NOTE: GPT-5.4 mini is exposed in this workspace as a Unity Gateway model service,
+# not as a classic Model Serving endpoint.
 dbutils.widgets.text("catalog", "high_garden_prod")
-dbutils.widgets.text("llm_endpoint", "")
+dbutils.widgets.text("llm_endpoint", "system.ai.databricks-gpt-5-4-mini")
 dbutils.widgets.dropdown("langsmith_enabled", "false", ["false", "true"])
 dbutils.widgets.text("langsmith_project", "high-garden-coffee-agent-prod")
 dbutils.widgets.text("langsmith_secret_scope", "high-garden")
 dbutils.widgets.text("langsmith_secret_key", "langsmith-api-key")
 
 CATALOG = dbutils.widgets.get("catalog").strip() or "high_garden_prod"
-LLM_ENDPOINT = dbutils.widgets.get("llm_endpoint").strip()
+LLM_MODEL_SERVICE = dbutils.widgets.get("llm_endpoint").strip()
 LANGSMITH_ENABLED = dbutils.widgets.get("langsmith_enabled").lower() == "true"
 LANGSMITH_PROJECT = dbutils.widgets.get("langsmith_project").strip()
 SECRET_SCOPE = dbutils.widgets.get("langsmith_secret_scope").strip()
@@ -37,14 +39,31 @@ ALLOWED_CATALOGS = {"high_garden", "high_garden_prod"}
 if CATALOG not in ALLOWED_CATALOGS:
     raise ValueError(f"Catalog is not allow-listed: {CATALOG}")
 
-if not LLM_ENDPOINT:
+if not LLM_MODEL_SERVICE:
+    raise ValueError("llm_endpoint/model-service name cannot be empty")
+
+if not LLM_MODEL_SERVICE.startswith("system.ai."):
     raise ValueError(
-        "Set the llm_endpoint widget to a Databricks chat-model serving endpoint available in your workspace."
+        "For this notebook use a governed Unity Gateway model service, for example "
+        "system.ai.databricks-gpt-5-4-mini"
     )
 
 print(f"Catalog: {CATALOG}")
-print(f"LLM endpoint: {LLM_ENDPOINT}")
+print(f"LLM model service: {LLM_MODEL_SERVICE}")
 print(f"LangSmith enabled: {LANGSMITH_ENABLED}")
+
+# COMMAND ----------
+# Authenticate to Unity Gateway with Databricks notebook authentication.
+# The temporary bearer token is never printed or stored in source control.
+workspace_client = WorkspaceClient()
+auth_headers = workspace_client.config.authenticate()
+authorization = auth_headers.get("Authorization", "")
+
+if not authorization.startswith("Bearer "):
+    raise RuntimeError("Could not obtain Databricks notebook bearer authentication")
+
+databricks_token = authorization.split(" ", 1)[1]
+UNITY_GATEWAY_BASE_URL = f"{workspace_client.config.host.rstrip('/')}/ai-gateway/mlflow/v1"
 
 # COMMAND ----------
 # LangSmith tracing.
@@ -289,10 +308,18 @@ ANSWERING RULES:
 """.strip()
 
 # COMMAND ----------
-llm = ChatDatabricks(
-    endpoint=LLM_ENDPOINT,
-    temperature=0.0,
+# LangChain talks to the governed Unity Gateway model service through its
+# OpenAI-compatible API. This avoids assuming that the catalog model is also
+# exposed as a classic /serving-endpoints endpoint.
+llm = ChatOpenAI(
+    model=LLM_MODEL_SERVICE,
+    base_url=UNITY_GATEWAY_BASE_URL,
+    api_key=databricks_token,
 )
+
+# Quick connectivity test before constructing the agent.
+model_test = llm.invoke("Reply with exactly MODEL_OK")
+print("LLM connectivity:", model_test.content)
 
 agent = create_agent(
     model=llm,
@@ -342,7 +369,7 @@ for blocked in [
 print("Guardrail self-test passed.")
 
 # COMMAND ----------
-# DEMO — uncomment one after setting llm_endpoint.
+# DEMO — uncomment one at a time.
 # print(ask("Which five markets have the highest opportunity scores and why?"))
 # print(ask("Which forecasting model performed best in temporal backtesting?"))
 # print(ask("How do the market segments differ in demand, growth and volatility?"))
