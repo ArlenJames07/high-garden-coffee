@@ -17,8 +17,6 @@ jobs:
       DATABRICKS_AUTH_TYPE: github-oidc
       DATABRICKS_HOST: ${{ vars.DATABRICKS_HOST }}
       DATABRICKS_CLIENT_ID: ${{ vars.DATABRICKS_CLIENT_ID }}
-      BUNDLE_VAR_workspace_host: ${{ vars.DATABRICKS_HOST }}
-      BUNDLE_VAR_cluster_id: ${{ vars.DATABRICKS_CLUSTER_ID }}
 
     steps:
       - name: Checkout
