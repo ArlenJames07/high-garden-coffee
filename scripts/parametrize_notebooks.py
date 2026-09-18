@@ -3,6 +3,7 @@ from __future__ import annotations
 import ast
 import io
 import json
+import re
 import tokenize
 from pathlib import Path
 
@@ -31,7 +32,6 @@ PARAMETER_CELL = (
 
 
 def as_source_list(text: str) -> list[str]:
-    """Convert source text back to the Jupyter list-of-lines representation."""
     return text.splitlines(keepends=True)
 
 
@@ -53,7 +53,6 @@ def parameter_cell() -> dict:
 
 
 def insertion_index(cells: list[dict]) -> int:
-    """Insert after a Python restart, otherwise after leading pip magic cells."""
     restart_indexes = [
         index
         for index, cell in enumerate(cells)
@@ -75,7 +74,6 @@ def insertion_index(cells: list[dict]) -> int:
 
 
 def rewrite_string_token(token_text: str) -> str:
-    """Convert ordinary string literals containing high_garden.* to f-strings."""
     try:
         value = ast.literal_eval(token_text)
     except (SyntaxError, ValueError):
@@ -84,8 +82,6 @@ def rewrite_string_token(token_text: str) -> str:
     if not isinstance(value, str) or "high_garden." not in value:
         return token_text
 
-    # Table/model identifiers do not contain braces. Guard anyway so an
-    # unrelated format-like string cannot become an invalid f-string.
     if "{" in value or "}" in value:
         raise ValueError(f"Cannot safely parameterize string containing braces: {value!r}")
 
@@ -94,7 +90,14 @@ def rewrite_string_token(token_text: str) -> str:
 
 
 def rewrite_python(source: str) -> str:
-    """Rewrite Python string literals without changing executable structure."""
+    # Some notebooks define a separate CATALOG constant. Make it reference
+    # the job/widget parameter instead of silently falling back to dev.
+    source = re.sub(
+        r'(?m)^\s*CATALOG\s*=\s*[\"\']high_garden[\"\']\s*$',
+        "CATALOG = catalog",
+        source,
+    )
+
     stream = io.StringIO(source)
     tokens = []
     for tok in tokenize.generate_tokens(stream.readline):
@@ -111,7 +114,6 @@ def rewrite_python(source: str) -> str:
 
 
 def rewrite_sql_magic(source: str) -> str:
-    """Convert %sql cells that reference the dev catalog into parameterized Python SQL."""
     lines = source.splitlines()
     sql = "\n".join(lines[1:]).strip()
     sql = sql.replace("high_garden.", "{catalog}.")
@@ -149,15 +151,20 @@ def transform_notebook(path: Path) -> bool:
     remaining = [
         source_text(cell)
         for cell in cells
-        if cell.get("cell_type") == "code" and "high_garden." in source_text(cell)
+        if cell.get("cell_type") == "code"
+        and (
+            "high_garden." in source_text(cell)
+            or re.search(
+                r'(?m)^\s*CATALOG\s*=\s*[\"\']high_garden[\"\']\s*$',
+                source_text(cell),
+            )
+        )
     ]
     if remaining:
         raise RuntimeError(
             f"Unparameterized high_garden identifiers remain in {path}: {remaining[:3]}"
         )
 
-    # Writing every selected notebook is intentional on the first run because
-    # the parameter cell itself may have been inserted even if no string changed.
     path.write_text(
         json.dumps(notebook, indent=1, ensure_ascii=False) + "\n",
         encoding="utf-8",
