@@ -5,28 +5,23 @@ resources:
       max_concurrent_runs: 1
       tasks:
         - task_key: forecast_experiments
-          existing_cluster_id: ${var.cluster_id}
           notebook_task:
             notebook_path: ../notebooks/07_model_experiments.ipynb
 
         - task_key: forecast_registration
           depends_on:
             - task_key: forecast_experiments
-          existing_cluster_id: ${var.cluster_id}
           notebook_task:
             notebook_path: ../notebooks/08_model_registration.ipynb
 
         - task_key: market_segmentation
-          existing_cluster_id: ${var.cluster_id}
           notebook_task:
             notebook_path: ../notebooks/10_market_segmentation.ipynb
 
         - task_key: growth_classifier
-          existing_cluster_id: ${var.cluster_id}
           notebook_task:
             notebook_path: ../notebooks/11_growth_classifier.ipynb
 
         - task_key: anomaly_detection
-          existing_cluster_id: ${var.cluster_id}
           notebook_task:
             notebook_path: ../notebooks/12_anomaly_detection.ipynb
