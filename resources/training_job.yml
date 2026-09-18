@@ -12,21 +12,31 @@ resources:
         - task_key: forecast_experiments
           notebook_task:
             notebook_path: ../notebooks/07_model_experiments.ipynb
+            base_parameters:
+              catalog: ${var.catalog}
 
         - task_key: forecast_registration
           depends_on:
             - task_key: forecast_experiments
           notebook_task:
             notebook_path: ../notebooks/08_model_registration.ipynb
+            base_parameters:
+              catalog: ${var.catalog}
 
         - task_key: market_segmentation
           notebook_task:
             notebook_path: ../notebooks/10_market_segmentation.ipynb
+            base_parameters:
+              catalog: ${var.catalog}
 
         - task_key: growth_classifier
           notebook_task:
             notebook_path: ../notebooks/11_growth_classifier.ipynb
+            base_parameters:
+              catalog: ${var.catalog}
 
         - task_key: anomaly_detection
           notebook_task:
             notebook_path: ../notebooks/12_anomaly_detection.ipynb
+            base_parameters:
+              catalog: ${var.catalog}
