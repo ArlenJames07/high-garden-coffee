@@ -3,6 +3,11 @@ resources:
     high_garden_training_pipeline:
       name: high-garden-training-pipeline
       max_concurrent_runs: 1
+      email_notifications:
+        on_start: []
+        on_success: []
+        on_failure: []
+        on_duration_warning_threshold_exceeded: []
       tasks:
         - task_key: forecast_experiments
           notebook_task:
