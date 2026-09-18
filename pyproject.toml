@@ -1,0 +1,27 @@
+[project]
+name = "high-garden-coffee"
+version = "0.1.0"
+description = "MLOps market-intelligence solution for High Garden Coffee on Azure Databricks"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "numpy>=2.0",
+  "pandas>=2.2",
+  "scikit-learn>=1.5",
+  "catboost>=1.2",
+  "mlflow>=3.0",
+]
+
+[dependency-groups]
+dev = [
+  "pytest>=8.0",
+  "ruff>=0.12",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
