@@ -1,9 +1,7 @@
 name: Deploy Databricks Bundle
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -11,6 +9,7 @@ permissions:
 
 jobs:
   deploy:
+    if: ${{ vars.DATABRICKS_HOST != '' && vars.DATABRICKS_CLIENT_ID != '' }}
     runs-on: ubuntu-latest
     environment: production
     env:
