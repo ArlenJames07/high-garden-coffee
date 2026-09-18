@@ -1,4 +1,4 @@
--- High Garden Coffee — grounded query examples for Databricks Genie
+-- High Garden Coffee — grounded query examples for Databricks Genie (PROD)
 -- Use these against governed Gold tables. The LLM explains; it does not generate forecasts.
 
 -- Top opportunities
@@ -12,7 +12,7 @@ SELECT
   recent_anomaly_count,
   opportunity_score,
   opportunity_tier
-FROM high_garden.gold.market_opportunities
+FROM high_garden_prod.gold.market_opportunities
 ORDER BY opportunity_rank
 LIMIT 10;
 
@@ -34,7 +34,7 @@ SELECT
   anomaly_safety_score,
   opportunity_score,
   opportunity_tier
-FROM high_garden.gold.market_opportunities
+FROM high_garden_prod.gold.market_opportunities
 WHERE country = :country
 ORDER BY opportunity_rank;
 
@@ -46,7 +46,7 @@ SELECT
   growth_probability,
   opportunity_score,
   opportunity_tier
-FROM high_garden.gold.market_opportunities
+FROM high_garden_prod.gold.market_opportunities
 WHERE growth_probability >= 0.60
 ORDER BY forecast_consumption DESC;
 
@@ -58,7 +58,7 @@ SELECT
   recent_max_anomaly_score,
   opportunity_score,
   opportunity_tier
-FROM high_garden.gold.market_opportunities
+FROM high_garden_prod.gold.market_opportunities
 WHERE recent_anomaly_count > 0
 ORDER BY recent_max_anomaly_score DESC;
 
@@ -70,7 +70,7 @@ SELECT
   wape,
   mase,
   negative_raw_predictions
-FROM high_garden.gold.model_metrics
+FROM high_garden_prod.gold.model_metrics
 ORDER BY wape ASC;
 
 -- Segment profiles
@@ -81,6 +81,6 @@ SELECT
   AVG(growth_probability) AS avg_growth_probability,
   AVG(volatility_cv) AS avg_volatility,
   AVG(opportunity_score) AS avg_opportunity_score
-FROM high_garden.gold.market_opportunities
+FROM high_garden_prod.gold.market_opportunities
 GROUP BY segment
 ORDER BY markets DESC;
